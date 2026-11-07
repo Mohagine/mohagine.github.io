@@ -94,8 +94,8 @@
     <div id="slideshowMessage" class="text-xl text-gray-400 hidden">Searching for images recursively...</div>
     <img id="slideshowImage" src="./GitHub Image Slideshow_files/jimandi_logo.png" alt="Slideshow Image" class="object-contain w-full h-full">
     
-    <!-- BULLETPROOF HTML OVERLAY CONTAINER -->
-    <div id="imageOverlayHTML" class="hidden" style="position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); background-color: rgba(0,0,0,0.85); color: #fff; padding: 20px; border-radius: 8px; z-index: 99999; max-width: 800px; max-height: 250px; overflow-y: auto; width: 90%; box-shadow: 0 4px 6px rgba(0,0,0,0.5); font-family: sans-serif;"></div>
+    <!-- TIGHTLY FITTED CENTERED HTML OVERLAY CONTAINER -->
+    <div id="imageOverlayHTML" class="hidden" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0,0,0,0.75); color: #fff; padding: 20px 30px; border-radius: 12px; z-index: 99999; width: fit-content; max-width: 90%; max-height: 80vh; overflow-y: auto; text-align: center; font-family: sans-serif; box-shadow: 0 8px 16px rgba(0,0,0,0.5);"></div>
 </main>
 
 <script>
@@ -227,9 +227,7 @@
             resultsContainer.classList.remove('hidden');
         }
 
-        // UPDATED FUNCTION: Safely generate URL and add error logging
         function loadOverlayHTML(imageUrl) {
-            // Remove any query parameters from URL before replacing the extension
             const baseUrl = imageUrl.split('?')[0];
             const htmlUrl = baseUrl.substring(0, baseUrl.lastIndexOf('.')) + '.html';
             
@@ -243,7 +241,7 @@
                 .then(html => {
                     console.log("HTML successfully loaded and injected.");
                     imageOverlayHTML.innerHTML = html;
-                    imageOverlayHTML.style.display = "block"; // Force display overrides class
+                    imageOverlayHTML.style.display = "block";
                     imageOverlayHTML.classList.remove('hidden');
                 })
                 .catch(err => {
@@ -261,7 +259,7 @@
             pausePlayButton.classList.remove('hidden'); nextButton.classList.remove('hidden'); speedDownButton.classList.remove('hidden'); speedUpButton.classList.remove('hidden');
             slideshowMessage.classList.add('hidden'); slideshowImage.classList.remove('hidden');
             
-            loadOverlayHTML(imageUrl); // Load corresponding HTML file
+            loadOverlayHTML(imageUrl);
             
             slideshowImage.onload = () => { slideshowImage.classList.remove('opacity-0'); slideshowImage.onload = null; };
             slideshowImage.src = imageUrl;
@@ -316,7 +314,7 @@
             if (currentSlideIndex >= shuffledIndices.length) { shuffledIndices = generateShuffledIndices(); currentSlideIndex = 0; }
             const imageUrl = currentSlideshowImages[shuffledIndices[currentSlideIndex]];
             
-            loadOverlayHTML(imageUrl); // Load corresponding HTML file
+            loadOverlayHTML(imageUrl);
 
             slideshowImage.onload = () => { slideshowImage.classList.remove('opacity-0'); if (!isPaused) { slideshowTimer = setTimeout(() => { slideshowImage.classList.add('opacity-0'); setTimeout(showNextSlide, 200); }, slideshowDelay); } };
             slideshowImage.onerror = () => { console.warn(`Failed to load image: ${imageUrl}`); currentSlideIndex++; showNextSlide(); };
