@@ -34,7 +34,7 @@
 <div class="bottom-contact-overlay">
   <div class="overlay-left"><a href="mailto:info@mohagine.com">Info@Mohagine.Com</a></div>
   <div class="overlay-right">
-    <a href="http://www.MOHAGINE.com/" target="_blank" rel="noopener noreferrer">MOHAGINE   www.MOHAGINE.com</a>
+    <a href="http://www.MOHAGINE.com/" target="_blank" rel="noopener noreferrer">MOHAGINE   www.MOHAGINE.com</a>
   </div>
 </div>
 
@@ -93,7 +93,8 @@
 <main id="slideshowContainer" class="fixed top-12 left-0 right-0 bottom-8 bg-black flex items-center justify-center relative" data-search-id="1793829647817">
     <div id="slideshowMessage" class="text-xl text-gray-400 hidden">Searching for images recursively...</div>
     <img id="slideshowImage" src="./GitHub Image Slideshow_files/jimandi_logo.png" alt="Slideshow Image" class="object-contain w-full h-full">
-    <div id="imageOverlayText" class="hidden absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-75 text-white p-4 rounded text-center max-w-3xl max-h-48 overflow-y-auto z-40 whitespace-pre-wrap text-sm md:text-base"></div>
+    <!-- NEW HTML OVERLAY CONTAINER -->
+    <div id="imageOverlayHTML" class="hidden absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-75 text-white p-4 rounded max-w-3xl max-h-64 overflow-y-auto z-40 w-11/12 md:w-auto"></div>
 </main>
 
 <script>
@@ -104,7 +105,7 @@
         const repoInput = document.getElementById('repo'), pathInput = document.getElementById('path'), submitButton = document.getElementById('submitButton');
         const repoInfo = document.getElementById('repoInfo'), messageArea = document.getElementById('messageArea'), resultsContainer = document.getElementById('resultsContainer');
         const resultsBody = document.getElementById('resultsBody'), readmeContainer = document.getElementById('readmeContainer'), readmeContent = document.getElementById('readmeContent');
-        const slideshowContainer = document.getElementById('slideshowContainer'), slideshowImage = document.getElementById('slideshowImage'), slideshowMessage = document.getElementById('slideshowMessage'), imageOverlayText = document.getElementById('imageOverlayText');
+        const slideshowContainer = document.getElementById('slideshowContainer'), slideshowImage = document.getElementById('slideshowImage'), slideshowMessage = document.getElementById('slideshowMessage'), imageOverlayHTML = document.getElementById('imageOverlayHTML');
 
         let currentSlideshowImages = [], shuffledIndices = [], currentSlideIndex = 0, slideshowTimer = null, isPaused = false, slideshowDelay = 40000;
         const defaultOwner = "mohagine", defaultRepo = "mohagine.github.io", defaultPath = "images", defaultOpeningImage = "defaultopeningimage.jpg"; 
@@ -225,17 +226,18 @@
             resultsContainer.classList.remove('hidden');
         }
 
-        function loadOverlayText(imageUrl) {
-            const textUrl = imageUrl.substring(0, imageUrl.lastIndexOf('.')) + '.txt';
-            fetch(textUrl)
-                .then(res => res.ok ? res.text() : Promise.reject('No text file found'))
-                .then(text => {
-                    imageOverlayText.textContent = text;
-                    imageOverlayText.classList.remove('hidden');
+        // NEW FUNCTION: Fetch and render HTML content instead of plain text
+        function loadOverlayHTML(imageUrl) {
+            const htmlUrl = imageUrl.substring(0, imageUrl.lastIndexOf('.')) + '.html';
+            fetch(htmlUrl)
+                .then(res => res.ok ? res.text() : Promise.reject('No HTML file found'))
+                .then(html => {
+                    imageOverlayHTML.innerHTML = html; // Inject HTML instead of raw text
+                    imageOverlayHTML.classList.remove('hidden');
                 })
                 .catch(() => {
-                    imageOverlayText.classList.add('hidden');
-                    imageOverlayText.textContent = '';
+                    imageOverlayHTML.classList.add('hidden');
+                    imageOverlayHTML.innerHTML = '';
                 });
         }
 
@@ -246,7 +248,7 @@
             pausePlayButton.classList.remove('hidden'); nextButton.classList.remove('hidden'); speedDownButton.classList.remove('hidden'); speedUpButton.classList.remove('hidden');
             slideshowMessage.classList.add('hidden'); slideshowImage.classList.remove('hidden');
             
-            loadOverlayText(imageUrl);
+            loadOverlayHTML(imageUrl); // Load corresponding HTML file
             
             slideshowImage.onload = () => { slideshowImage.classList.remove('opacity-0'); slideshowImage.onload = null; };
             slideshowImage.src = imageUrl;
@@ -301,7 +303,7 @@
             if (currentSlideIndex >= shuffledIndices.length) { shuffledIndices = generateShuffledIndices(); currentSlideIndex = 0; }
             const imageUrl = currentSlideshowImages[shuffledIndices[currentSlideIndex]];
             
-            loadOverlayText(imageUrl);
+            loadOverlayHTML(imageUrl); // Load corresponding HTML file
 
             slideshowImage.onload = () => { slideshowImage.classList.remove('opacity-0'); if (!isPaused) { slideshowTimer = setTimeout(() => { slideshowImage.classList.add('opacity-0'); setTimeout(showNextSlide, 200); }, slideshowDelay); } };
             slideshowImage.onerror = () => { console.warn(`Failed to load image: ${imageUrl}`); currentSlideIndex++; showNextSlide(); };
