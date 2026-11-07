@@ -8,7 +8,7 @@
     <style>
         body { font-family: 'Inter', sans-serif; overflow: hidden; }
         #slideshowImage { transition: opacity 9.5s ease-in-out; }
-        .hidden { display: none; }
+        .hidden { display: none !important; }
         :root {
             --overlay-bg: rgba(0, 0, 0, 0.85);
             --overlay-text: #ffffff;
@@ -90,11 +90,12 @@
     </div>
 </div>
 
-<main id="slideshowContainer" class="fixed top-12 left-0 right-0 bottom-8 bg-black flex items-center justify-center relative" data-search-id="1793829647817">
+<main id="slideshowContainer" class="fixed top-12 left-0 right-0 bottom-8 bg-black flex items-center justify-center" data-search-id="1793829647817">
     <div id="slideshowMessage" class="text-xl text-gray-400 hidden">Searching for images recursively...</div>
     <img id="slideshowImage" src="./GitHub Image Slideshow_files/jimandi_logo.png" alt="Slideshow Image" class="object-contain w-full h-full">
-    <!-- NEW HTML OVERLAY CONTAINER -->
-    <div id="imageOverlayHTML" class="hidden absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-75 text-white p-4 rounded max-w-3xl max-h-64 overflow-y-auto z-40 w-11/12 md:w-auto"></div>
+    
+    <!-- BULLETPROOF HTML OVERLAY CONTAINER -->
+    <div id="imageOverlayHTML" class="hidden" style="position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); background-color: rgba(0,0,0,0.85); color: #fff; padding: 20px; border-radius: 8px; z-index: 99999; max-width: 800px; max-height: 250px; overflow-y: auto; width: 90%; box-shadow: 0 4px 6px rgba(0,0,0,0.5); font-family: sans-serif;"></div>
 </main>
 
 <script>
@@ -226,16 +227,28 @@
             resultsContainer.classList.remove('hidden');
         }
 
-        // NEW FUNCTION: Fetch and render HTML content instead of plain text
+        // UPDATED FUNCTION: Safely generate URL and add error logging
         function loadOverlayHTML(imageUrl) {
-            const htmlUrl = imageUrl.substring(0, imageUrl.lastIndexOf('.')) + '.html';
+            // Remove any query parameters from URL before replacing the extension
+            const baseUrl = imageUrl.split('?')[0];
+            const htmlUrl = baseUrl.substring(0, baseUrl.lastIndexOf('.')) + '.html';
+            
+            console.log("Attempting to fetch HTML overlay from:", htmlUrl);
+
             fetch(htmlUrl)
-                .then(res => res.ok ? res.text() : Promise.reject('No HTML file found'))
+                .then(res => {
+                    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                    return res.text();
+                })
                 .then(html => {
-                    imageOverlayHTML.innerHTML = html; // Inject HTML instead of raw text
+                    console.log("HTML successfully loaded and injected.");
+                    imageOverlayHTML.innerHTML = html;
+                    imageOverlayHTML.style.display = "block"; // Force display overrides class
                     imageOverlayHTML.classList.remove('hidden');
                 })
-                .catch(() => {
+                .catch(err => {
+                    console.warn("Overlay HTML not found or failed to load:", err);
+                    imageOverlayHTML.style.display = "none";
                     imageOverlayHTML.classList.add('hidden');
                     imageOverlayHTML.innerHTML = '';
                 });
